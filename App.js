@@ -1,33 +1,57 @@
-import React from "react";
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, FlatList, Button } from "react-native";
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
+  const [courseGoals, setCourseGoals] = useState([]);
+  const [isAddMode, setIsAddMode] = useState(false);
+
+  const addGoalHandler = (goalTitle) => {
+    setCourseGoals((currentGoals) => [
+      ...courseGoals,
+      { id: (Math.random() * 1000).toFixed(0).toString(), value: goalTitle },
+    ]);
+    setIsAddMode(false);
+  };
+
+  const removeGoalHandler = (goalId) => {
+    setCourseGoals((currentGoals) => {
+      return currentGoals.filter((goal) => goal.id !== goalId);
+    });
+  };
+
+  const showModalAddHandler = () => setIsAddMode(true);
+
+  const cancelModalAddHandler = () => setIsAddMode(false);
+
   return (
-    <View style={styles.container}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          alignItems: "center",
-        }}
-      >
-        <TextInput placeholder="Course Goal" style={styles.addNewGoal} />
-        <Button title="Add"></Button>
+    <View style={styles.screen}>
+      <Button title="Add New Goal" onPress={showModalAddHandler} />
+      <View>
+        <GoalInput
+          onAddGoal={addGoalHandler}
+          isAddMode={isAddMode}
+          onCancel={cancelModalAddHandler}
+        />
       </View>
-      <View></View>
+      <FlatList
+        data={courseGoals}
+        keyExtractor={(item) => item.id}
+        renderItem={(itemData) => (
+          <GoalItem
+            id={itemData.item.id}
+            value={itemData.item.value}
+            onDelete={removeGoalHandler}
+          />
+        )}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     padding: 50,
-  },
-  addNewGoal: {
-    borderBottomColor: "black",
-    borderBottomWidth: 1,
-    marginBottom: 5,
-    padding: 10,
-    width: "80%",
   },
 });
